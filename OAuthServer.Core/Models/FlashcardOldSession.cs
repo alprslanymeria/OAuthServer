@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace OAuthServer.Core.Models
+{
+    public class FlashcardOldSession
+    {
+        public string Id { get; set; } = null!;
+        public int FlashcardId { get; set; }
+        public int FlashcardCategoryId { get; set; }
+        public decimal Rate { get; set; }
+
+        // REFERANS ALDIKLARI (PARENT'LARI)
+        public required Flashcard Flashcard { get; set; } // FOR FlashcardId
+        public required FlashcardCategory FlashcardCategory { get; set; } // FOR FlashcardCategoryId
+
+        // REFERANS VERDİKLERİ (CHILD'LARI)
+        public ICollection<FlashcardSessionRow> FlashcardSessionRows { get; set; } = [];
+    }
+}
