@@ -14,4 +14,8 @@
     <ProjectReference Include="..\OAuthServer.Service\OAuthServer.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>
