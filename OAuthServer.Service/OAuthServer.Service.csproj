@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OAuthServer.Data\OAuthServer.Data.csproj" />
+  </ItemGroup>
+
 </Project>
