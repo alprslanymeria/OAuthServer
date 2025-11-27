@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace OAuthServer.Core.Models;
 
-namespace OAuthServer.Core.Models
+public class DeckWord
 {
-    public class DeckWord
-    {
-        public int Id { get; set; }
-        public int FlashcardCategoryId { get; set; }
-        public string Question { get; set; } = null!;
-        public string Answer { get; set; } = null!;
+    public int Id { get; set; }
+    public int FlashcardCategoryId { get; set; }
+    public string Question { get; set; } = default!;
+    public string Answer { get; set; } = default!;
 
-        // REFERANS ALDIKLARI (PARENT'LARI)
-        public required FlashcardCategory FlashcardCategory { get; set; } // FOR FlashcardCategoryId
-    }
+    // REFERANS ALDIKLARI (PARENT'LARI)
+    public required FlashcardCategory FlashcardCategory { get; set; } // FOR FlashcardCategoryId
 }

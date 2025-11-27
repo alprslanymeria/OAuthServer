@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace OAuthServer.Core.Models;
 
-namespace OAuthServer.Core.Models
+public class ReadingOldSession
 {
-    public class ReadingOldSession
-    {
-        public string Id { get; set; } = null!;
-        public int ReadingId { get; set; }
-        public int ReadingBookId { get; set; }
-        public decimal Rate { get; set; }
-        public DateTime CreatedAt { get; set; } // DEFAULT NOW DEĞERİ VERİLECEK --> FLUENT API 
+    public string Id { get; set; } = default!;
+    public int ReadingId { get; set; }
+    public int ReadingBookId { get; set; }
+    public decimal Rate { get; set; }
+    public DateTime CreatedAt { get; set; } // DEFAULT NOW DEĞERİ VERİLECEK --> FLUENT API 
 
-        // REFERANS ALDIKLARI (PARENT'LARI)
-        public required Reading Reading { get; set; } // FOR ReadingId
-        public required ReadingBook ReadingBook { get; set; } // FOR ReadingBookId
+    // REFERANS ALDIKLARI (PARENT'LARI)
+    public required Reading Reading { get; set; } // FOR ReadingId
+    public required ReadingBook ReadingBook { get; set; } // FOR ReadingBookId
 
-        // REFERANS VERDİKLERİ (CHILD'LARI)
-        public ICollection<ReadingSessionRow> ReadingSessionRows { get; set; } = [];
-    }
+    // REFERANS VERDİKLERİ (CHILD'LARI)
+    public ICollection<ReadingSessionRow> ReadingSessionRows { get; set; } = [];
 }

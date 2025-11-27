@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace OAuthServer.Core.Models;
 
-namespace OAuthServer.Core.Models
+public class UserRefreshToken
 {
-    public class UserRefreshToken
-    {
-        public string UserId { get; set; } = null!;
-        public string Code { get; set; } = null!;
-        public DateTime Expiration { get; set; }
-    }
+    public string UserId { get; set; } = default!;
+    public string Code { get; set; } = default!;
+    public DateTime Expiration { get; set; }
 }

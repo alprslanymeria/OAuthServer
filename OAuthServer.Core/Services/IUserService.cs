@@ -1,17 +1,13 @@
 ﻿using OAuthServer.Core.DTOs;
 using OAuthServer.Core.Helper;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace OAuthServer.Core.Services
+namespace OAuthServer.Core.Services;
+
+public interface IUserService
 {
-    public interface IUserService
-    {
-        // BURDA BULUNAN METOTLARIN IMPLAMENTASYONU SERVICE KATMANINDA YAPILIR.
-        // BURADA BULUNAN METOTLAR SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
-        // METOTLARDAN DÖNEN VERİ İSE SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
+    // BURDA BULUNAN METOTLARIN IMPLAMENTASYONU SERVICE KATMANINDA YAPILIR.
+    // BURADA BULUNAN METOTLAR SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
+    // METOTLARDAN DÖNEN VERİ İSE SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
 
-        Task<Response<UserDto>> CreateUserAsync(SignUpDto signUpDto);
-    }
+    Task<Response<UserDto>> CreateUserAsync(SignUpDto signUpDto);
 }
