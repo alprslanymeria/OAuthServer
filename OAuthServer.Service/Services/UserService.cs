@@ -4,45 +4,41 @@ using OAuthServer.Core.DTOs;
 using OAuthServer.Core.Helper;
 using OAuthServer.Core.Models;
 using OAuthServer.Core.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace OAuthServer.Service.Services
+namespace OAuthServer.Service.Services;
+
+public class UserService(
+
+    UserManager<User> userManager,
+    IMapper mapper) : IUserService
 {
-    public class UserService(
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly IMapper _mapper = mapper;
 
-        UserManager<User> userManager,
-        IMapper mapper) : IUserService
+    public async Task<Response<UserDto>> CreateUserAsync(SignUpDto signUpDto)
     {
-        private readonly UserManager<User> _userManager = userManager;
-        private readonly IMapper _mapper = mapper;
-
-        public async Task<Response<UserDto>> CreateUserAsync(SignUpDto signUpDto)
+        var user = new User
         {
-            var user = new User
-            {
-                UserName = signUpDto.Username,
-                Email = signUpDto.Email,
-                NativeLanguageId = signUpDto.NativeLanguageId,
-            };
+            UserName = signUpDto.Username,
+            Email = signUpDto.Email,
+            NativeLanguageId = signUpDto.NativeLanguageId,
+        };
 
-            var result = await _userManager.CreateAsync(user, signUpDto.Password);
+        var result = await _userManager.CreateAsync(user, signUpDto.Password);
 
-            if (!result.Succeeded)
-            {
-                // GET ERROR MESSAGES
-                var errors = result.Errors.Select(e => e.Description).ToList();
+        if (!result.Succeeded)
+        {
+            // GET ERROR MESSAGES
+            var errors = result.Errors.Select(e => e.Description).ToList();
 
-                var errorDto = new ErrorDto(errors, true);
+            var errorDto = new ErrorDto(errors, true);
 
-                return Response<UserDto>.Fail(errorDto, 400);
-            }
-
-            // USER MAP TO USERDTO
-            var userDto = _mapper.Map<UserDto>(user);
-
-            return Response<UserDto>.Success(201);
+            return Response<UserDto>.Fail(errorDto, 400);
         }
+
+        // USER MAP TO USERDTO
+        var userDto = _mapper.Map<UserDto>(user);
+
+        return Response<UserDto>.Success(201);
     }
 }
