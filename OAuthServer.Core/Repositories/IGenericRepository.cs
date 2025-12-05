@@ -11,16 +11,16 @@ public interface IGenericRepository<TEntity> where TEntity : class
     // ENTITY'LER İÇİN YAPILAN GENEL İŞLEMLER YANİ CRUD İŞLEMLERİ BURADA TANIMLANACAK.
     // KÜÇÜK VE ORTA BAZLI PROJELERDE GENERİC REPOSİTORY PATTERN YETERLİDİR. DAHA BÜYÜK SEVİYELERDE DDD KULLANILIR.
 
-    Task<TEntity> GetEntityByIdAsync(int id);
-
     // ToList() METODUNU ÇAĞIRANA KADAR IQueryable VERİTABANINA YANSIMAZ.
-    IQueryable<TEntity> GetAllAsync();
+    IQueryable<TEntity> GetAll();
 
     IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate);
 
-    Task AddAsync(TEntity entity);
+    ValueTask<TEntity?> GetByIdAsync(int id);
 
-    void Remove(TEntity entity);
+    ValueTask AddAsync(TEntity entity);
 
     TEntity Update(TEntity entity);
+
+    void Delete(TEntity entity);
 }

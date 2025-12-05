@@ -1,16 +1,12 @@
-﻿using Mapster;
-using MapsterMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OAuthServer.Core.Configuration;
 using OAuthServer.Core.Models;
-using OAuthServer.Core.Repositories;
-using OAuthServer.Core.Services;
-using OAuthServer.Core.UnitOfWork;
 using OAuthServer.Data;
-using OAuthServer.Data.Repositories;
-using OAuthServer.Data.UnitOfWork;
+using OAuthServer.Data.Extensions;
+using OAuthServer.Service.Extensions;
 using OAuthServer.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,24 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-
-// DI REGISTER
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped(typeof(IServiceGeneric<,>), typeof(ServiceGeneric<,>));
-
-// DB CONTEXT
-builder.Services.AddDbContext<AppDbContext>(options => {
-
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"), sqlOptions =>
-    {
-
-        sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name);
-    });
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
+
+
+// REPOSITORY & SERVICE EXTENSION
+builder.Services.AddRepositories(builder.Configuration).AddServices();
+
 
 // IDENTITY API
 builder.Services.AddIdentity<User, IdentityRole>(opt =>
@@ -66,7 +53,7 @@ builder.Services.AddAuthentication(options =>
 
 }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
 {
-    var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOption>();
+    var tokenOptions = builder.Configuration.GetSection(TokenOption.Key).Get<TokenOption>();
 
     opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
@@ -92,13 +79,13 @@ builder.Services.AddAuthentication(options =>
 
 });
 
-// MAPSTER
-builder.Services.AddMapster();
 // OPTIONS PATTERN
 builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("TokenOptions"));
 //builder.Services.Configure<List<Client>>(builder.Configuration.GetSection("Clients"));
 
 var app = builder.Build();
+
+app.UseExceptionHandler(x => { });
 
 if (app.Environment.IsDevelopment())
 {

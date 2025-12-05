@@ -9,11 +9,11 @@ public interface IAuthenticationService
     // BURADA BULUNAN METOTLAR SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
     // METOTLARDAN DÖNEN VERİ İSE SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
 
-    Task<Response<TokenDto>> CreateTokenAsync(SignInDto signInDto);
+    Task<Response<TokenResponse>> CreateTokenAsync(SignInRequest request);
 
-    Task<Response<TokenDto>> CreateTokenByRefreshToken(string refreshToken);
+    Task<Response<TokenResponse>> CreateTokenByRefreshToken(string refreshToken);
 
-    Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken);
+    Task<Response> RevokeRefreshToken(string refreshToken);
 
     //Response<ClientTokenDto> CreateTokenByClient(ClientSignInDto clientSignInDto);
 }

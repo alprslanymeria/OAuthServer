@@ -53,7 +53,7 @@ public class TokenService(
 
 
 
-    public TokenDto CreateToken(User user)
+    public TokenResponse CreateToken(User user)
     {
         // BİZİM BELİRLEDİĞİMİZ TOKEN OPTION DEĞERLERİNİ ALIYORUZ
         var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.AccessTokenExpiration);
@@ -81,13 +81,7 @@ public class TokenService(
 
         var token = handler.WriteToken(jwtSecurityToken);
 
-        var tokenDto = new TokenDto
-        {
-            AccessToken = token,
-            AccessTokenExpiration = accessTokenExpiration,
-            RefreshToken = CreateRefreshToken(),
-            RefreshTokenExpiration = refreshTokenExpiration
-        };
+        var tokenDto = new TokenResponse(token, accessTokenExpiration, CreateRefreshToken(), refreshTokenExpiration);
 
         return tokenDto;
     }

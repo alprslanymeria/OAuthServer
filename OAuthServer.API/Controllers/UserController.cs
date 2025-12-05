@@ -1,25 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OAuthServer.Core.DTOs;
 using OAuthServer.Core.Services;
 
-namespace OAuthServer.API.Controllers
+namespace OAuthServer.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class UserController(
+
+    IUserService userService) : BaseController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController(
+    private readonly IUserService _userService = userService;
 
-        IUserService userService) : BaseController
-    {
-        private readonly IUserService _userService = userService;
+    // TESTED WITH POSTMAN ✅
+    [HttpPost]
+    public async Task<IActionResult> CreateUser(SignUpRequest request) =>  ActionResultInstance(await _userService.CreateUserAsync(request));
 
-        // TESTED WITH POSTMAN ✅
-        [HttpPost]
-        public async Task<IActionResult> CreateUser(SignUpDto signUpDto)
-        {
-            var result = await _userService.CreateUserAsync(signUpDto);
-
-            return ActionResultInstance(result);
-        }
-    }
+    [HttpGet("{username:minlength(3)}")]
+    public async Task<IActionResult> GetUserByUserName(string username) => ActionResultInstance(await _userService.GetUserByUserNameAsync(username));
 }

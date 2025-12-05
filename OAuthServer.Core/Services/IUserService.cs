@@ -9,5 +9,6 @@ public interface IUserService
     // BURADA BULUNAN METOTLAR SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
     // METOTLARDAN DÖNEN VERİ İSE SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
 
-    Task<Response<UserDto>> CreateUserAsync(SignUpDto signUpDto);
+    Task<Response<UserDto>> CreateUserAsync(SignUpRequest request);
+    Task<Response<UserDto>> GetUserByUserNameAsync(string username);
 }

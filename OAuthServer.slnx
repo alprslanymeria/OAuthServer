@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="notes.txt" />
+  </Folder>
   <Project Path="OAuthServer.API/OAuthServer.API.csproj" />
   <Project Path="OAuthServer.Core/OAuthServer.Core.csproj" />
   <Project Path="OAuthServer.Data/OAuthServer.Data.csproj" />

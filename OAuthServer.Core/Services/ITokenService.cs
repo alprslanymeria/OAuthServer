@@ -9,7 +9,7 @@ public interface ITokenService
     // BURADA BULUNAN METOTLAR SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
     // METOTLARDAN DÖNEN VERİ İSE SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
 
-    TokenDto CreateToken(User user);
+    TokenResponse CreateToken(User user);
 
     //ClientTokenDto CreateTokenByClient(Client client)
 

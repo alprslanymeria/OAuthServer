@@ -10,17 +10,17 @@ namespace OAuthServer.Core.Services;
 
 public interface IServiceGeneric<TEntity, TDto> where TEntity : class where TDto : class
 {
-    Task<Response<TDto>> GetEntityByIdAsync(int id);
-
     // BURADA DÖNEN VERİ TİPİ OLARAK GENERIC REPOSITORY'DEN FARKLI OLARAK IENUMERABLE KULLANDIK.
     // API KATMANINDA BUSINESS KOD ÇALIŞTIRMAYACAĞIZ.
     Task<Response<IEnumerable<TDto>>> GetAllAsync();
 
     Task<Response<IEnumerable<TDto>>> Where(Expression<Func<TEntity, bool>> predicate);
 
+    ValueTask<Response<TDto>> GetByIdAsync(int id);
+
     Task<Response<TDto>> AddAsync(TDto dto);
 
-    Task<Response<NoDataDto>> Remove(int id);
+    Task<Response> Update(TDto dto, int id);
 
-    Task<Response<NoDataDto>> Update(TDto dto, int id);
+    Task<Response> Delete(int id);
 }

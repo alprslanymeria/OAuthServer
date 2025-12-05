@@ -6,6 +6,7 @@ using OAuthServer.Core.Models;
 using OAuthServer.Core.Repositories;
 using OAuthServer.Core.Services;
 using OAuthServer.Core.UnitOfWork;
+using System.Net;
 
 namespace OAuthServer.Service.Services;
 
@@ -23,26 +24,26 @@ public class AuthenticationService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IGenericRepository<UserRefreshToken> _userRefreshTokenRepository = userRefreshTokenRepository;
 
-    public async Task<Response<TokenDto>> CreateTokenAsync(SignInDto signInDto)
+    public async Task<Response<TokenResponse>> CreateTokenAsync(SignInRequest request)
     {
         // CHECK SIGNIN DTO
-        ArgumentNullException.ThrowIfNull(signInDto);
+        ArgumentNullException.ThrowIfNull(request);
 
         // GET USER BY EMAIL
-        var user = await _userManager.FindByEmailAsync(signInDto.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         // CHEK USER
-        if (user == null)
+        if (user is null)
         {
-            return Response<TokenDto>.Fail("Invalid email or password.", true, 400);
+            return Response<TokenResponse>.Fail("Invalid email or password.");
         }
 
         // GET PASSWORD
-        var passwordValid = await _userManager.CheckPasswordAsync(user, signInDto.Password);
+        var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
 
         if (!passwordValid)
         {
-            return Response<TokenDto>.Fail("Invalid email or password.", true, 400);
+            return Response<TokenResponse>.Fail("Invalid email or password.");
         }
 
         // CREATE TOKEN
@@ -51,7 +52,7 @@ public class AuthenticationService(
         // CHECK REFRESH TOKEN
         var userRefreshToken = await _userRefreshTokenRepository.Where(x => x.UserId == user.Id).SingleOrDefaultAsync();
 
-        if (userRefreshToken == null)
+        if (userRefreshToken is null)
         {
             await _userRefreshTokenRepository.AddAsync(new UserRefreshToken
             {
@@ -68,26 +69,26 @@ public class AuthenticationService(
 
         await _unitOfWork.CommitAsync();
 
-        return Response<TokenDto>.Success(token, 200);
+        return Response<TokenResponse>.Success(token);
 
     }
 
-    public async Task<Response<TokenDto>> CreateTokenByRefreshToken(string refreshToken)
+    public async Task<Response<TokenResponse>> CreateTokenByRefreshToken(string refreshToken)
     {
         // CHECK REFRESH TOKEN
         var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync();
 
-        if (existRefreshToken == null)
+        if (existRefreshToken is null)
         {
-            return Response<TokenDto>.Fail("Refresh token not found", true, 404);
+            return Response<TokenResponse>.Fail("Refresh token not found", HttpStatusCode.NotFound);
         }
 
         // CHECK USER
         var user = await _userManager.FindByIdAsync(existRefreshToken.UserId);
 
-        if (user == null)
+        if (user is null)
         {
-            return Response<TokenDto>.Fail("User Id not found", true, 404);
+            return Response<TokenResponse>.Fail("User Id not found", HttpStatusCode.NotFound);
         }
 
         // CREATE TOKEN
@@ -97,33 +98,37 @@ public class AuthenticationService(
         existRefreshToken.Code = token.RefreshToken;
         existRefreshToken.Expiration = token.RefreshTokenExpiration;
 
+        // WHERE KOŞULU İLE GELEN DATA NO TRACKING OLARAK GELDİĞİ İÇİN TRACK EDİLMESİ İÇİN UPDATE METODU İLE ÇAĞIRDIM.
+        // YOKSA COMMIT ASYNC ÇAĞRISINDA DEĞİŞİKLİKLER VERİTABANINA YANSIMAZ.
+        _userRefreshTokenRepository.Update(existRefreshToken);
+
         // UPDATE DATABASE
         await _unitOfWork.CommitAsync();
 
-        return Response<TokenDto>.Success(token, 200);
+        return Response<TokenResponse>.Success(token);
     }
 
-    public async Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken)
+    public async Task<Response> RevokeRefreshToken(string refreshToken)
     {
         var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync();
 
-        if (existRefreshToken == null)
+        if (existRefreshToken is null)
         {
-            return Response<NoDataDto>.Fail("Refresh token not found", true, 404);
+            return Response.Fail("Refresh token not found", HttpStatusCode.NotFound);
         }
 
-        _userRefreshTokenRepository.Remove(existRefreshToken);
+        _userRefreshTokenRepository.Delete(existRefreshToken);
 
         await _unitOfWork.CommitAsync();
 
-        return Response<NoDataDto>.Success(200);
+        return Response.Success();
     }
 
     //public Response<ClientTokenDto> CreateTokenByClient(ClientSignInDto clientSignInDto)
     //{
     //    var client = _clients.SingleOrDefault(X => x.Id == clientSignInDto.ClientId && x.Secret == clientSignInDto.ClientSecret);
 
-    //    if(client == null)
+    //    if(client is null)
     //    {
     //        return Response<ClientTokenDto>.Fail("ClientId or ClientSecret not found", true, 404);
     //    }

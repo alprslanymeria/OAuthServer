@@ -12,34 +12,24 @@ public class GenericRepository<TEntity>(AppDbContext context) : IGenericReposito
 
     // BU METOTLARDA YAPILAN İŞLEMLER VERİTABANINA YANSIMAZ, NE ZAMAN Kİ SERVIC KATMANINDA 
     // SaveChangesAsync() METODU ÇAĞRILIRSA O ZAMAN YANSIR.
-    public async Task AddAsync(TEntity entity)
-    {
-        await _dbSet.AddAsync(entity);
-    }
 
-    public IQueryable<TEntity> GetAllAsync()
-    {
-        return _dbSet.AsQueryable();
-    }
+    public IQueryable<TEntity> GetAll() => _dbSet.AsQueryable().AsNoTracking();
 
-    public async Task<TEntity> GetEntityByIdAsync(int id)
+    // NE ZAMAN Kİ SERVİCE KATMANINDA ToListAsync() ÇAĞRILIRSA O ZAMAN VERİTABANIA YANSIR.
+    public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate) => _dbSet.Where(predicate).AsNoTracking();
+
+    public async ValueTask<TEntity?> GetByIdAsync(int id)
     {
         var entity = await _dbSet.FindAsync(id);
 
-        if (entity == null)
-        {
-            return entity;
-        }
+        if (entity is null) return entity;
 
         _context.Entry(entity).State = EntityState.Detached;
 
         return entity;
     }
 
-    public void Remove(TEntity entity)
-    {
-        _dbSet.Remove(entity);
-    }
+    public async ValueTask AddAsync(TEntity entity) => await _dbSet.AddAsync(entity);
 
     public TEntity Update(TEntity entity)
     {
@@ -53,10 +43,5 @@ public class GenericRepository<TEntity>(AppDbContext context) : IGenericReposito
         return entity;
     }
 
-    public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate)
-    {
-        return _dbSet.Where(predicate);
-
-        // NE ZAMAN Kİ SERVİCE KATMANINDA ToListAsync() ÇAĞRILIRSA O ZAMAN VERİTABANIA YANSIR.
-    }
+    public void Delete(TEntity entity) => _dbSet.Remove(entity);
 }

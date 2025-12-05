@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OAuthServer.Data.Configurations;
+using OAuthServer.Core.Configuration;
+using OAuthServer.Core.Repositories;
+using OAuthServer.Core.UnitOfWork;
+using OAuthServer.Data.Repositories;
+
 
 namespace OAuthServer.Data.Extensions;
 
@@ -23,6 +27,10 @@ public static class RepositoryExtensions
                 sqlOptions.MigrationsAssembly(typeof(DataAssembly).Assembly.FullName);
             });
         });
+
+        services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
 
         return services;
     }
