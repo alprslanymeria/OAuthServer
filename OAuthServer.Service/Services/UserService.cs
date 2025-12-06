@@ -21,7 +21,7 @@ public class UserService(
         // BURADA MANUEL MAPPING YAPTIK ÇÜNKÜ REQUEST ÖNEMLİ BİLGİLER İÇERİYOR.
         var user = new User
         {
-            UserName = request.Username,
+            UserName = request.UserName,
             Email = request.Email,
         };
 

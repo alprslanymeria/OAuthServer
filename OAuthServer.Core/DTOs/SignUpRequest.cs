@@ -4,6 +4,7 @@
 
 public record SignUpRequest(
     
-    string? Username,
+    string? UserName,
     string Email,
-    string Password);
+    string Password,
+    int NativeLanguageId);

@@ -7,4 +7,5 @@ public record UserDto(
     string Id,
     string? UserName,
     string Email,
-    string? ImageUrl);
+    string? ImageUrl,
+    int NativeLanguageId);
