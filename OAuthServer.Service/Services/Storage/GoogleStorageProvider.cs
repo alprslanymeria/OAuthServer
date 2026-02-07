@@ -51,7 +51,7 @@ public class GoogleCloudStorageProvider: IStorageProvider
     {
         var objectName = BuildObjectName(fileName, folderPath);
 
-        var uploadObjectOptions = new UploadObjectOptions { PredefinedAcl = PredefinedObjectAcl.PublicRead };
+        var uploadObjectOptions = new UploadObjectOptions {};
 
         var uploadedObject = await _storageClient.UploadObjectAsync(
             _config.BucketName,

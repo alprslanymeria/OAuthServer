@@ -59,7 +59,8 @@ public class AuthController(
 
         // PULL USER INFO FROM CLAIMS
         var email = result.Principal.FindFirstValue(ClaimTypes.Email);
-        var name = result.Principal.FindFirstValue(ClaimTypes.Name);
+        //var name = result.Principal.FindFirstValue(ClaimTypes.Name);
+        var name = "Test";
         var googleSubjectId = result.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
         var picture = result.Principal.FindFirst("picture")?.Value;
 

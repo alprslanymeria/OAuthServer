@@ -19,13 +19,13 @@ public class UserController(
         => ActionResultInstance(await _userService.CreateUserAsync(request));
 
     [Authorize]
-    [HttpGet("{username:minlength(3)}")]
+    [HttpGet("by-name/{username:minlength(3)}")]
     public async Task<IActionResult> GetUserByUserName(string username) 
         => ActionResultInstance(await _userService.GetUserByUserNameAsync(username));
 
     // EXTRA METHODS FOR MY NEXTJS PROJECT
     [Authorize]
-    [HttpGet("{userId}")]
+    [HttpGet("{userId:guid}")]
     public async Task<IActionResult> GetProfileInfos(string userId) 
         => ActionResultInstance(await _userService.GetProfileInfos(userId));
 

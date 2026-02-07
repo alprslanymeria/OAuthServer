@@ -70,6 +70,8 @@ public class AuthenticationService(
         {
             userRefreshToken.Code = token.RefreshToken;
             userRefreshToken.Expiration = token.RefreshTokenExpiration;
+
+            _userRefreshTokenRepository.Update(userRefreshToken);
         }
 
         await _unitOfWork.CommitAsync();

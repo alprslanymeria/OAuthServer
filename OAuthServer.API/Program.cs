@@ -2,6 +2,7 @@
 using OAuthServer.API.ExceptionHandlers;
 using OAuthServer.API.Extensions;
 using OAuthServer.API.Filters;
+using OAuthServer.API.ModelBinding;
 using OAuthServer.API.Middlewares;
 using OAuthServer.Core.Configuration;
 using OAuthServer.Data.Extensions;
@@ -11,7 +12,10 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // SERVICES
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(0, new FileUploadModelBinderProvider());
+});
 builder.Services.AddOpenApi();
 
 // CORS
@@ -47,6 +51,7 @@ builder.Services.AddFluentValidationAutoValidation(cfg =>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // OPTIONS PATTERN
+builder.Services.Configure<List<Client>>(builder.Configuration.GetSection("Clients"));
 builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("TokenOptions"));
 
 var app = builder.Build();
