@@ -3,12 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace OAuthServer.Core.Helper;
 
-public class Response<T> where T : class
+public class Response<T>
 {
     public T? Data { get; private set; }
     public List<string>? ErrorMessage { get; private set; }
 
-    // BUNU KENDİ İÇ YAPIMIZDA KISA YOLDAN İŞLEMİN BAŞARILI OLUP OLMADIĞINI KONTROL ETMEK İÇİN KULLANACAĞIZ.
+    // WE'LL USE THIS TO QUICKLY CHECK WHETHER THE OPERATION WAS SUCCESSFUL OR NOT IN OUR INTERNAL STRUCTURE.
     [JsonIgnore] public bool IsSuccess => ErrorMessage == null || ErrorMessage.Count == 0;
     [JsonIgnore] public bool IsFail => !IsSuccess;
     [JsonIgnore] public HttpStatusCode Status { get; private set; }
@@ -33,7 +33,7 @@ public class Response
 {
     public List<string>? ErrorMessage { get; private set; }
 
-    // BUNU KENDİ İÇ YAPIMIZDA KISA YOLDAN İŞLEMİN BAŞARILI OLUP OLMADIĞINI KONTROL ETMEK İÇİN KULLANACAĞIZ.
+    // WE'LL USE THIS TO QUICKLY CHECK WHETHER THE OPERATION WAS SUCCESSFUL OR NOT IN OUR INTERNAL STRUCTURE.
     [JsonIgnore] public bool IsSuccess => ErrorMessage == null || ErrorMessage.Count == 0;
     [JsonIgnore] public bool IsFail => !IsSuccess;
     [JsonIgnore] public HttpStatusCode Status { get; private set; }

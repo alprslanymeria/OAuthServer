@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using OAuthServer.Core.DTOs;
 using OAuthServer.Core.Helper;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 
-namespace OAuthServer.Service.Filters;
+namespace OAuthServer.API.Filters;
 
 public class FluentValidationFilter : IFluentValidationAutoValidationResultFactory
 {

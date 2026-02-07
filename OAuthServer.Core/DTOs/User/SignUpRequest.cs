@@ -1,6 +1,4 @@
-﻿namespace OAuthServer.Core.DTOs;
-
-// KULLANICIDAN SIGN UP SIRASINDA ALINAN DTO
+﻿namespace OAuthServer.Core.DTOs.User;
 
 public record SignUpRequest(
     

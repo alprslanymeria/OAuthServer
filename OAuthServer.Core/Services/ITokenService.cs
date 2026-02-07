@@ -1,22 +1,16 @@
-﻿using OAuthServer.Core.DTOs;
+﻿using OAuthServer.Core.Configuration;
+using OAuthServer.Core.DTOs.Client;
+using OAuthServer.Core.DTOs.RefreshToken;
 using OAuthServer.Core.Models;
 
 namespace OAuthServer.Core.Services;
 
 public interface ITokenService
 {
-    // BURDA BULUNAN METOTLARIN IMPLAMENTASYONU SERVICE KATMANINDA YAPILIR.
-    // BURADA BULUNAN METOTLAR SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
-    // METOTLARDAN DÖNEN VERİ İSE SERVICE VEYA PRESENTATION (API) KATMANINDA KULLANILABİLİR.
+    // THE METHODS IN THIS INTERFACE ARE IMPLEMENTED IN THE SERVICE LAYER.
+    // THE METHODS IN THIS INTERFACE CAN BE USED IN THE SERVICE OR PRESENTATION (API) LAYER.
+    // THE DATA RETURNED FROM THE METHODS CAN BE USED IN THE SERVICE OR PRESENTATION (API) LAYER.
 
     TokenResponse CreateToken(User user);
-
-    //ClientTokenDto CreateTokenByClient(Client client)
-
-    //public class Client
-    //{
-    //    public string Id { get; set; } = null!;
-    //    public string Secret { get; set; } = null!;
-    //    public List<string> Audiences { get; set; } = null!;
-    //}
+    ClientTokenResponse CreateTokenByClient(Client client);
 }

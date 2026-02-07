@@ -1,5 +1,5 @@
 ﻿using Mapster;
-using OAuthServer.Core.DTOs;
+using OAuthServer.Core.DTOs.User;
 using OAuthServer.Core.Models;
 
 namespace OAuthServer.Service.Mapping;

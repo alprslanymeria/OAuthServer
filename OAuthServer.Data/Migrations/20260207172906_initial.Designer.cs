@@ -12,7 +12,7 @@ using OAuthServer.Data;
 namespace OAuthServer.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251205091744_initial")]
+    [Migration("20260207172906_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -177,7 +177,7 @@ namespace OAuthServer.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -186,7 +186,7 @@ namespace OAuthServer.Data.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int?>("NativeLanguageId")
+                    b.Property<int>("NativeLanguageId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(2);

@@ -1,4 +1,4 @@
-﻿namespace OAuthServer.Core.DTOs;
+﻿namespace OAuthServer.Core.DTOs.RefreshToken;
 
 
 public record RefreshTokenRequest(string Token);

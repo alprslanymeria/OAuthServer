@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OAuthServer.Core.Configuration;
-using OAuthServer.Core.DTOs;
+using OAuthServer.Core.DTOs.Client;
+using OAuthServer.Core.DTOs.RefreshToken;
 using OAuthServer.Core.Models;
 using OAuthServer.Core.Services;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,17 +11,17 @@ using System.Security.Cryptography;
 
 namespace OAuthServer.Service.Services;
 
-// BU TOKEN SERVICE'I SADECE BU ASSEMBLY İÇERİSİNDE KULLANACAĞIMIZ İÇİN "INTERNAL" KALMASI GEREKİYOR.
-// FAKAT API KATMMANINDA DI REGISTER OLARAK KAYIT ETMEMİZ GEREKTİĞİ İÇİN BUNU ŞUANLIK "PUBLIC" YAPACAĞIZ.
-// BUNUN BEST PRACTICE OLANI BU ASSEMBLY'E DE DI CONTAINER FRAMEWORK EKLEYEREK BURADA INITİALİZE ETMEK.
+// THIS TOKEN SERVICE MUST REMAIN "INTERNAL" BECAUSE WE'LL ONLY USE IT WITHIN THIS ASSEMBLY.
+// HOWEVER, WE'LL MAKE IT "PUBLIC" FOR NOW BECAUSE WE NEED TO REGISTER IT IN THE DI CONTAINER IN THE API LAYER.
+// THE BEST PRACTICE FOR THIS WOULD BE TO ADD A DI CONTAINER FRAMEWORK TO THIS ASSEMBLY AND INITIALIZE IT HERE.
 public class TokenService(
 
-    UserManager<User> userManager,
     IOptions<TokenOption> options) : ITokenService
 {
 
-    private readonly UserManager<User> _userManager = userManager;
     private readonly TokenOption _tokenOption = options.Value;
+
+    #region UTILS
 
     // PRIVATE METHOD FOR CREATIN REFREH TOKEN
     private static string CreateRefreshToken()
@@ -34,15 +34,14 @@ public class TokenService(
         return Convert.ToBase64String(numberByte);
     }
 
-
     // PRIVATE METHOD FOR CREATE CLAIMS
-    private static IEnumerable<Claim> GetClaims(User user, List<String> audiences)
+    private static List<Claim> GetClaims(User user, List<string> audiences)
     {
         var claimList = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id),
-            new(ClaimTypes.Name, user.UserName),
-            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(ClaimTypes.Name, user.UserName!),
+            new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
@@ -51,17 +50,31 @@ public class TokenService(
         return claimList;
     }
 
+    // PRIVATE METHOD FOR CREATE CLAIMS FOR CLIENT
+    private static List<Claim> GetClaimsForClient(Client client)
+    {
+        var claimList = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Sub, client.Id.ToString())
+        };
+
+        claimList.AddRange(client.Audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
+
+        return claimList;
+    }
+    #endregion
 
 
     public TokenResponse CreateToken(User user)
     {
-        // BİZİM BELİRLEDİĞİMİZ TOKEN OPTION DEĞERLERİNİ ALIYORUZ
+        // GET OPTION VALUES
         var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.AccessTokenExpiration);
         var refreshTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.RefreshTokenExpiration);
         var issuer = _tokenOption.Issuer;
 
 
-        // JWT BİZDEN "SigningCredentials" NESNESİ İSTER. BU NESNE İSE BİZDEN "SecurityKey" İSTER.
+        // JWT REQUIRES A "SigningCredentials" OBJECT. AND THIS OBJECT REQUIRES A "SecurityKey" OBJECT.
         var securityKey = SignService.GetSymetricKey(_tokenOption.SecurityKey);
         SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha256Signature);
 
@@ -86,53 +99,39 @@ public class TokenService(
         return tokenDto;
     }
 
-
-    //private IEnumerable<Claim> GetClaimsForClient(Client client)
-    //{
-    //    var claimList = new List<Claim>
-
-    //    claimList.AddRange(client.audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
-
-    //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString());
-    //    new Claim(JwtRegisteredClaimNames.Sub, client.Id.ToString());
-
-    //    return claimList;
-    //}
+    public ClientTokenResponse CreateTokenByClient(Client client)
+    {
+        // GET OPTION VALUES
+        var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.AccessTokenExpiration);
+        var issuer = _tokenOption.Issuer;
 
 
-    //public ClientTokenDto  CreateTokenByClient(Client client)
-    //{
-    //    // BİZİM BELİRLEDİĞİMİZ TOKEN OPTION DEĞERLERİNİ ALIYORUZ
-    //    var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.AccessTokenExpiration);
-    //    var issuer = _tokenOption.Issuer;
+        // JWT REQUIRES A "SigningCredentials" OBJECT. AND THIS OBJECT REQUIRES A "SecurityKey" OBJECT.
+        var securityKey = SignService.GetSymetricKey(_tokenOption.SecurityKey);
+        SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha256Signature);
 
+        // GET CLAIMS
+        var claims = GetClaimsForClient(client);
 
-    //    // JWT BİZDEN "SigningCredentials" NESNESİ İSTER. BU NESNE İSE BİZDEN "SecurityKey" İSTER.
-    //    var securityKey = SignService.GetSymetricKey(_tokenOption.SecurityKey);
-    //    SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha256Signature);
+        // CREATE JWT TOKEN
+        JwtSecurityToken jwtSecurityToken = new(
 
-    //    // GET CLAIMS
-    //    var claims = GetClaimsForClient(client);
+            issuer: issuer,
+            expires: accessTokenExpiration,
+            notBefore: DateTime.Now,
+            claims: claims,
+            signingCredentials: signingCredentials);
 
-    //    // CREATE JWT TOKEN
-    //    JwtSecurityToken jwtSecurityToken = new(
+        var handler = new JwtSecurityTokenHandler();
 
-    //        issuer: issuer,
-    //        expires: accessTokenExpiration,
-    //        notBefore: DateTime.Now,
-    //        claims: claims,
-    //        signingCredentials: signingCredentials);
+        var token = handler.WriteToken(jwtSecurityToken);
 
-    //    var handler = new JwtSecurityTokenHandler();
+        var clientTokenResponse = new ClientTokenResponse(
 
-    //    var token = handler.WriteToken(jwtSecurityToken);
+            AccessToken: token,
+            AccessTokenExpiration: accessTokenExpiration
+        );
 
-    //    var clientTokenDto = new ClientTokenDto
-    //    {
-    //        AccessToken = token,
-    //        AccessTokenExpiration = accessTokenExpiration
-    //    };
-
-    //    return clientTokenDto;
-    //}
+        return clientTokenResponse;
+    }
 }

@@ -1,6 +1,4 @@
-﻿namespace OAuthServer.Core.DTOs;
-
-// KULLANICIYA SIGN UP İŞLEMİNDEN SONRA DÖNÜLEN DTO
+﻿namespace OAuthServer.Core.DTOs.User;
 
 public record UserDto(
     

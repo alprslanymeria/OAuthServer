@@ -174,7 +174,7 @@ namespace OAuthServer.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -184,7 +184,9 @@ namespace OAuthServer.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<int>("NativeLanguageId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(2);
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)

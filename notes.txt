@@ -139,6 +139,7 @@ _______________________
 # Extension metotlar
 # Filter'lar
 # SaveChanges Interceptor --> Audit Record (Updated, Created) : SaveChangesInterceptor'ı miras alan class yazılır.
+# BaseEntity<TId>, IAuditEntity
 # CustomException'lar
 	# Exception sınıfını miras alarak custom exception'lar oluşturabiliriz.
 # Global Exception handler

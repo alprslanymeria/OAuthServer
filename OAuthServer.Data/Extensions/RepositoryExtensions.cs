@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OAuthServer.Core.Configuration;
+using OAuthServer.Core.Models;
 using OAuthServer.Core.Repositories;
 using OAuthServer.Core.UnitOfWork;
 using OAuthServer.Data.Repositories;
@@ -9,9 +11,9 @@ using OAuthServer.Data.Repositories;
 
 namespace OAuthServer.Data.Extensions;
 
-// EXTENSION METOTLAR STATİK OLMAK ZORUNDADIRLAR.
-// HANGİ CLASS, INTERFACE İÇİN METOT YAZIYORSAK ONU THIS İLE BELİRTMELİYİZ.
-// EXTENSION METOT SONRASINDA ZİNCİRLEME OLARAK DEVAM ETMEK İÇİN GERİYE DEĞER DÖNMELİYİZ.
+// EXTENSION METHODS MUST BE STATIC, AND THE CLASS THAT CONTAINS THEM MUST ALSO BE STATIC.
+// WE SHOULD SPECIFY THE CLASS OR INTERFACE FOR WHICH WE ARE WRITING THE METHOD WITH THIS.
+
 public static class RepositoryExtensions 
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services, IConfiguration configuration)
@@ -33,5 +35,10 @@ public static class RepositoryExtensions
 
 
         return services;
+    }
+
+    public static IdentityBuilder AddIdentityEntityFrameworkStores(this IdentityBuilder builder)
+    {
+        return builder.AddEntityFrameworkStores<AppDbContext>();
     }
 }

@@ -30,8 +30,8 @@ namespace OAuthServer.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NativeLanguageId = table.Column<int>(type: "int", nullable: true, defaultValue: 2),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NativeLanguageId = table.Column<int>(type: "int", nullable: false, defaultValue: 2),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),

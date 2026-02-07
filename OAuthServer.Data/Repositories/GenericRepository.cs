@@ -10,12 +10,11 @@ public class GenericRepository<TEntity>(AppDbContext context) : IGenericReposito
     private readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
 
 
-    // BU METOTLARDA YAPILAN İŞLEMLER VERİTABANINA YANSIMAZ, NE ZAMAN Kİ SERVIC KATMANINDA 
-    // SaveChangesAsync() METODU ÇAĞRILIRSA O ZAMAN YANSIR.
+    // OPERATIONS THAT IN THESE METHODS ARE NOT REFLECTED TO THE DATABASE, WHEN SaveChangesAsync() IS CALLED IN THE SERVICE LAYER, THEN IT WILL BE REFLECTED TO THE DATABASE.
 
     public IQueryable<TEntity> GetAll() => _dbSet.AsQueryable().AsNoTracking();
 
-    // NE ZAMAN Kİ SERVİCE KATMANINDA ToListAsync() ÇAĞRILIRSA O ZAMAN VERİTABANIA YANSIR.
+    // WHEN ToListAsync() IS CALLED IN THE SERVICE LAYER, THEN IT WILL BE REFLECTED TO THE DATABASE.
     public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate) => _dbSet.Where(predicate).AsNoTracking();
 
     public async ValueTask<TEntity?> GetByIdAsync(int id)

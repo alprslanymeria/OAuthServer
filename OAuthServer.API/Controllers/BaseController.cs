@@ -7,7 +7,7 @@ namespace OAuthServer.API.Controllers;
 public class BaseController : ControllerBase
 {
     [NonAction]
-    public IActionResult ActionResultInstance<T>(Response<T> response) where T : class
+    public IActionResult ActionResultInstance<T>(Response<T> response)
     {
         return response.Status switch
         {
@@ -28,5 +28,5 @@ public class BaseController : ControllerBase
     }
 }
 
-// REST Mimarisinde her response'ın bir status code değeri olmak zorundayken body'si olmak zorunda değildir.
-// Bu bir yardımcı metot olduğu için "NonAction" attrbute kullandık.
+// IN REST ARCHITECTURE, EVERY RESPONSE MUST HAVE A STATUS CODE BUT NOT NECESSARILY A BODY.
+// WE USE "NON ACTION" ATTRIBUTE BECAUSE THIS IS A HELPER METHOD.

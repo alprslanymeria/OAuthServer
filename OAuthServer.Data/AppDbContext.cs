@@ -14,8 +14,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     // OVERRIDE ON MODEL CREATING
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        // APPLY CONFIGURATIONS
         // BU ASSEMBLY İÇERİSİNDE "IEntityTypeConfiguration" INTERFACE'İNİ IMPLEMENT EDEN TÜM CLASS'LARI OTOMATİK OLARAK BULUP UYGULAR
+        // THIS ASSEMBLY AUTOMATICALLY FINDS AND APPLIES ALL CLASSES THAT IMPLEMENT THE "IEntityTypeConfiguration" INTERFACE WITHIN THIS ASSEMBLY
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
         base.OnModelCreating(builder);

@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using OAuthServer.Core.DTOs;
+using Microsoft.AspNetCore.Diagnostics;
 using OAuthServer.Core.Helper;
 using System.Net;
 
-namespace OAuthServer.Service.ExceptionHandlers;
+namespace OAuthServer.API.ExceptionHandlers;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
@@ -18,7 +16,7 @@ public class GlobalExceptionHandler : IExceptionHandler
 
         return true;
 
-        // return true;  --> Bu hatayı ben ele aldım ve ilgili response modeli ben geri döneceğim.
-        // return false; --> Bu hatayı ele aldım, gerekli operasyonlarımı yaptım. Bundan sonraki yolculuğuna devam etsin.
+        // RETURN TRUE;     --> I'VE ADDRESSED THIS ERROR, I'LL RETURN THE RESPONSE MODEL I CREATED.
+        // RETURN FALSE;    --> I'VE ADDRESSED THIS ERROR, I'VE DONE THE NECESSARY OPERATIONS. LET IT CONTINUE ITS JOURNEY.
     }
 }

@@ -3,7 +3,7 @@
 public class TokenOption
 {
     public const string Key = "TokenOptions";
-    public List<String> Audience { get; set; } = default!;
+    public List<string> Audience { get; set; } = default!;
     public string Issuer { get; set; } = default!;
     public int AccessTokenExpiration { get; set; }
     public int RefreshTokenExpiration { get; set; }

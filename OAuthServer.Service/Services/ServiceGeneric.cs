@@ -24,7 +24,6 @@ public class ServiceGeneric<TEntity, TDto>(
 
     public async Task<Response<IEnumerable<TDto>>> GetAllAsync()
     {
-        // DATABASE'DEKİ TÜM ENTITY KAYITLARINI ÇEKER VE LIST DTO'YA DÖNÜŞTÜRÜR
         var dtos = _mapper.Map<List<TDto>>(await _repository.GetAll().ToListAsync());
 
         return Response<IEnumerable<TDto>>.Success(dtos);
@@ -41,16 +40,13 @@ public class ServiceGeneric<TEntity, TDto>(
 
     public async ValueTask<Response<TDto>> GetByIdAsync(int id)
     {
-        // DATABASE'DEKİ KAYITI ÇEKER.
         var entity = await _repository.GetByIdAsync(id);
 
-        // NULL CHECK / IF NULL RETURN 404
         if (entity is null)
         {
             return Response<TDto>.Fail("ID NOT FOUND!", HttpStatusCode.NotFound);
         }
 
-        // IF NOT NULL MAP ENTITY TO DTO
         var dto = _mapper.Map<TDto>(entity);
 
         return Response<TDto>.Success(dto);

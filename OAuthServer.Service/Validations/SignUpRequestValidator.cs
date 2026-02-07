@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using OAuthServer.Core.DTOs;
+using OAuthServer.Core.DTOs.User;
 
 namespace OAuthServer.Service.Validations;
 
