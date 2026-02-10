@@ -22,37 +22,37 @@ public class ServiceGeneric<TEntity, TDto>(
     private readonly IGenericRepository<TEntity> _repository = repository;
 
 
-    public async Task<Response<IEnumerable<TDto>>> GetAllAsync()
+    public async Task<ServiceResult<IEnumerable<TDto>>> GetAllAsync()
     {
         var dtos = _mapper.Map<List<TDto>>(await _repository.GetAll().ToListAsync());
 
-        return Response<IEnumerable<TDto>>.Success(dtos);
+        return ServiceResult<IEnumerable<TDto>>.Success(dtos);
     }
 
-    public async Task<Response<IEnumerable<TDto>>> Where(Expression<Func<TEntity, bool>> predicate)
+    public async Task<ServiceResult<IEnumerable<TDto>>> Where(Expression<Func<TEntity, bool>> predicate)
     {
         var list = await _repository.Where(predicate).ToListAsync();
 
         var dtos = _mapper.Map<IEnumerable<TDto>>(list);
 
-        return Response<IEnumerable<TDto>>.Success(dtos);
+        return ServiceResult<IEnumerable<TDto>>.Success(dtos);
     }
 
-    public async ValueTask<Response<TDto>> GetByIdAsync(int id)
+    public async ValueTask<ServiceResult<TDto>> GetByIdAsync(int id)
     {
         var entity = await _repository.GetByIdAsync(id);
 
         if (entity is null)
         {
-            return Response<TDto>.Fail("ID NOT FOUND!", HttpStatusCode.NotFound);
+            return ServiceResult<TDto>.Fail("ID NOT FOUND!", HttpStatusCode.NotFound);
         }
 
         var dto = _mapper.Map<TDto>(entity);
 
-        return Response<TDto>.Success(dto);
+        return ServiceResult<TDto>.Success(dto);
     }
 
-    public async Task<Response<TDto>> AddAsync(TDto dto)
+    public async Task<ServiceResult<TDto>> AddAsync(TDto dto)
     {
         // GELEN DTO NESNESİ ENTITY'E DÖNÜŞTÜRÜLÜR
         var entity = _mapper.Map<TEntity>(dto);
@@ -66,17 +66,17 @@ public class ServiceGeneric<TEntity, TDto>(
         // YENİ DEĞERLERİ İLE EKLENEN "entity" VARIABLE'INI TEKRAR DTO'YA DÖNÜŞTÜRÜYORUZ
         var newDto = _mapper.Map<TDto>(entity);
 
-        return Response<TDto>.Success(newDto, HttpStatusCode.Created);
+        return ServiceResult<TDto>.Success(newDto, HttpStatusCode.Created);
     }
 
-    public async Task<Response> Update(TDto dto, int id)
+    public async Task<ServiceResult> Update(TDto dto, int id)
     {
         // CHECK ENTITY
         var isExistEntity = await _repository.GetByIdAsync(id);
 
         if (isExistEntity is null)
         {
-            return Response.Fail("ID NOT FOUND!", HttpStatusCode.NotFound);
+            return ServiceResult.Fail("ID NOT FOUND!", HttpStatusCode.NotFound);
         }
 
         var entity = _mapper.Map<TEntity>(isExistEntity);
@@ -85,24 +85,24 @@ public class ServiceGeneric<TEntity, TDto>(
 
         await _unitOfWork.CommitAsync();
 
-        return Response.Success(HttpStatusCode.NoContent);
+        return ServiceResult.Success(HttpStatusCode.NoContent);
     }
 
-    public async Task<Response> Delete(int id)
+    public async Task<ServiceResult> Delete(int id)
     {
         // CHECK ENTITY
         var isExistEntity = await _repository.GetByIdAsync(id);
 
         if (isExistEntity is null)
         {
-            return Response.Fail("ID NOT FOUND!", HttpStatusCode.NotFound);
+            return ServiceResult.Fail("ID NOT FOUND!", HttpStatusCode.NotFound);
         }
 
         _repository.Delete(isExistEntity);
 
         await _unitOfWork.CommitAsync();
 
-        return Response.Success(HttpStatusCode.NoContent);
+        return ServiceResult.Success(HttpStatusCode.NoContent);
     }
     
 }

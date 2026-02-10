@@ -11,9 +11,9 @@ public interface IAuthenticationService
     // THE METHODS IN THIS INTERFACE CAN BE USED IN THE SERVICE OR PRESENTATION (API) LAYER.
     // THE DATA RETURNED FROM THE METHODS CAN BE USED IN THE SERVICE OR PRESENTATION (API) LAYER.
 
-    Task<Response<TokenResponse>> CreateTokenAsync(SignInRequest request);
-    Task<Response<TokenResponse>> CreateTokenByRefreshToken(string refreshToken);
-    Task<Response> RevokeRefreshToken(string refreshToken);
-    Task<Response<ClientTokenResponse>> CreateTokenByClient(ClientSignInRequest request);
-    Task<Response<TokenResponse>> CreateTokenByExternalLogin(string email, string? name, string googleSubjectId, string? picture);
+    Task<ServiceResult<TokenResponse>> CreateTokenAsync(SignInRequest request);
+    Task<ServiceResult<TokenResponse>> CreateTokenByRefreshToken(string refreshToken);
+    Task<ServiceResult> RevokeRefreshToken(string refreshToken);
+    Task<ServiceResult<ClientTokenResponse>> CreateTokenByClient(ClientSignInRequest request);
+    Task<ServiceResult<TokenResponse>> CreateTokenByExternalLogin(string email, string? name, string googleSubjectId, string? picture);
 }

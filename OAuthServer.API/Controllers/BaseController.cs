@@ -7,7 +7,7 @@ namespace OAuthServer.API.Controllers;
 public class BaseController : ControllerBase
 {
     [NonAction]
-    public IActionResult ActionResultInstance<T>(Response<T> response)
+    public IActionResult ActionResultInstance<T>(ServiceResult<T> response)
     {
         return response.Status switch
         {
@@ -18,7 +18,7 @@ public class BaseController : ControllerBase
     }
 
     [NonAction]
-    public IActionResult ActionResultInstance(Response response)
+    public IActionResult ActionResultInstance(ServiceResult response)
     {
         return response.Status switch
         {

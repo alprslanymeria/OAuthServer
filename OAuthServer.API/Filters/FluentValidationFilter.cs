@@ -14,7 +14,7 @@ public class FluentValidationFilter : IFluentValidationAutoValidationResultFacto
                             .Select(x => x.ErrorMessage)
                             .ToList();
 
-        var responseModel = Response.Fail(errors);
+        var responseModel = ServiceResult.Fail(errors);
 
         return new BadRequestObjectResult(responseModel);
     }

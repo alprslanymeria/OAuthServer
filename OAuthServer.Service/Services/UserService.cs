@@ -26,7 +26,7 @@ public class UserService(
     private readonly IFileStorageHelper _fileStorageHelper = fileStorageHelper;
     private readonly ILogger<UserService> _logger = logger;
 
-    public async Task<Response<UserDto>> CreateUserAsync(SignUpRequest request)
+    public async Task<ServiceResult<UserDto>> CreateUserAsync(SignUpRequest request)
     {
         // IN HERE, WE DID MANUAL MAPPING BECAUSE THE REQUEST CONTAINS IMPORTANT INFORMATION.
         var user = new User
@@ -43,46 +43,46 @@ public class UserService(
             // GET ERROR MESSAGES
             var errors = result.Errors.Select(e => e.Description).ToList();
 
-            return Response<UserDto>.Fail(errors, HttpStatusCode.BadRequest);
+            return ServiceResult<UserDto>.Fail(errors, HttpStatusCode.BadRequest);
         }
 
         // USER MAP TO USERDTO
         var userDto = _mapper.Map<UserDto>(user);
 
-        return Response<UserDto>.SuccessAsCreated(userDto, $"api/user/{userDto.UserName}");
+        return ServiceResult<UserDto>.SuccessAsCreated(userDto, $"api/user/{userDto.UserName}");
     }
 
-    public async Task<Response<UserDto>> GetUserByUserNameAsync(string username)
+    public async Task<ServiceResult<UserDto>> GetUserByUserNameAsync(string username)
     {
         var user = await _userManager.FindByNameAsync(username);
 
         if (user is null)
         {
-            return Response<UserDto>.Fail($"Kullanıcı bulunamadı: {username}", HttpStatusCode.NotFound);
+            return ServiceResult<UserDto>.Fail($"Kullanıcı bulunamadı: {username}", HttpStatusCode.NotFound);
         }
 
         var userDto = _mapper.Map<UserDto>(user);
 
-        return Response<UserDto>.Success(userDto, HttpStatusCode.OK);
+        return ServiceResult<UserDto>.Success(userDto, HttpStatusCode.OK);
     }
 
     // // EXTRA METHODS FOR MY NEXTJS PROJECT
-    public async Task<Response<UserDto>> GetProfileInfos(string userId)
+    public async Task<ServiceResult<UserDto>> GetProfileInfos(string userId)
     {
 
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user is null)
         {
-            return Response<UserDto>.Fail($"Kullanıcı bulunamadı: {userId} {user}", HttpStatusCode.NotFound);
+            return ServiceResult<UserDto>.Fail($"Kullanıcı bulunamadı: {userId} {user}", HttpStatusCode.NotFound);
         }
 
         var userDto = _mapper.Map<UserDto>(user);
 
-        return Response<UserDto>.Success(userDto, HttpStatusCode.OK);
+        return ServiceResult<UserDto>.Success(userDto, HttpStatusCode.OK);
     }
 
-    public async Task<Response> UpdateProfileInfos(UpdateProfileInfosRequest request)
+    public async Task<ServiceResult> UpdateProfileInfos(UpdateProfileInfosRequest request)
     {
         // EXTRACT REQUEST DATA
         var userId = request.UserId;
@@ -97,7 +97,7 @@ public class UserService(
 
         if (user is null)
         {
-            return Response.Fail($"Kullanıcı bulunamadı: {userId}", HttpStatusCode.NotFound);
+            return ServiceResult.Fail($"Kullanıcı bulunamadı: {userId}", HttpStatusCode.NotFound);
         }
 
         // STORE OLD FILE URLS FOR DELETION
@@ -129,7 +129,7 @@ public class UserService(
             // GET ERROR MESSAGES
             var errors = result.Errors.Select(e => e.Description).ToList();
 
-            return Response.Fail(errors, HttpStatusCode.BadRequest);
+            return ServiceResult.Fail(errors, HttpStatusCode.BadRequest);
         }
 
         // DELETE OLD FILES FROM STORAGE IF URLS CHANGED
@@ -141,10 +141,10 @@ public class UserService(
         // LOG MESSAGE
         _logger.LogInformation($"UpdateProfileInfosHandler: Finished updating profile infos for User ID {userId}");
 
-        return Response.Success(HttpStatusCode.NoContent);
+        return ServiceResult.Success(HttpStatusCode.NoContent);
     }
 
-    public async Task<Response<bool>> CompareLanguageId(CompareLanguageIdRequest request)
+    public async Task<ServiceResult<bool>> CompareLanguageId(CompareLanguageIdRequest request)
     {
         // EXTRACT REQUEST DATA
         var userId = request.UserId;
@@ -157,8 +157,8 @@ public class UserService(
         var languageId = LanguageMapper.FromName(languageName) ?? throw new Exception($"Dil bulunamadı: {languageName}");
 
         if (user.NativeLanguageId == (int)languageId)
-            return Response<bool>.Success(true, HttpStatusCode.OK);
+            return ServiceResult<bool>.Success(true, HttpStatusCode.OK);
 
-        return Response<bool>.Success(false, HttpStatusCode.OK);
+        return ServiceResult<bool>.Success(false, HttpStatusCode.OK);
     }
 }

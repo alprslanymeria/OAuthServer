@@ -29,7 +29,7 @@ public class AuthenticationService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IGenericRepository<UserRefreshToken> _userRefreshTokenRepository = userRefreshTokenRepository;
 
-    public async Task<Response<TokenResponse>> CreateTokenAsync(SignInRequest request)
+    public async Task<ServiceResult<TokenResponse>> CreateTokenAsync(SignInRequest request)
     {
         // CHECK SIGNIN DTO
         ArgumentNullException.ThrowIfNull(request);
@@ -40,7 +40,7 @@ public class AuthenticationService(
         // CHEK USER
         if (user is null)
         {
-            return Response<TokenResponse>.Fail("Invalid email or password.");
+            return ServiceResult<TokenResponse>.Fail("Invalid email or password.");
         }
 
         // GET PASSWORD
@@ -48,7 +48,7 @@ public class AuthenticationService(
 
         if (!passwordValid)
         {
-            return Response<TokenResponse>.Fail("Invalid email or password.");
+            return ServiceResult<TokenResponse>.Fail("Invalid email or password.");
         }
 
         // CREATE TOKEN
@@ -76,18 +76,18 @@ public class AuthenticationService(
 
         await _unitOfWork.CommitAsync();
 
-        return Response<TokenResponse>.Success(token);
+        return ServiceResult<TokenResponse>.Success(token);
 
     }
 
-    public async Task<Response<TokenResponse>> CreateTokenByRefreshToken(string refreshToken)
+    public async Task<ServiceResult<TokenResponse>> CreateTokenByRefreshToken(string refreshToken)
     {
         // CHECK REFRESH TOKEN
         var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync();
 
         if (existRefreshToken is null)
         {
-            return Response<TokenResponse>.Fail("Refresh token not found", HttpStatusCode.NotFound);
+            return ServiceResult<TokenResponse>.Fail("Refresh token not found", HttpStatusCode.NotFound);
         }
 
         // CHECK USER
@@ -95,7 +95,7 @@ public class AuthenticationService(
 
         if (user is null)
         {
-            return Response<TokenResponse>.Fail("User Id not found", HttpStatusCode.NotFound);
+            return ServiceResult<TokenResponse>.Fail("User Id not found", HttpStatusCode.NotFound);
         }
 
         // CREATE TOKEN
@@ -112,40 +112,40 @@ public class AuthenticationService(
         // UPDATE DATABASE
         await _unitOfWork.CommitAsync();
 
-        return Response<TokenResponse>.Success(token);
+        return ServiceResult<TokenResponse>.Success(token);
     }
 
-    public async Task<Response> RevokeRefreshToken(string refreshToken)
+    public async Task<ServiceResult> RevokeRefreshToken(string refreshToken)
     {
         var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync();
 
         if (existRefreshToken is null)
         {
-            return Response.Fail("Refresh token not found", HttpStatusCode.NotFound);
+            return ServiceResult.Fail("Refresh token not found", HttpStatusCode.NotFound);
         }
 
         _userRefreshTokenRepository.Delete(existRefreshToken);
 
         await _unitOfWork.CommitAsync();
 
-        return Response.Success();
+        return ServiceResult.Success();
     }
 
-    public async Task<Response<ClientTokenResponse>> CreateTokenByClient(ClientSignInRequest request)
+    public async Task<ServiceResult<ClientTokenResponse>> CreateTokenByClient(ClientSignInRequest request)
     {
         var client = _clients.SingleOrDefault(x => x.Id == request.ClientId && x.Secret == request.ClientSecret);
 
         if (client is null)
         {
-            return Response<ClientTokenResponse>.Fail("ClientId or ClientSecret not found", HttpStatusCode.NotFound);
+            return ServiceResult<ClientTokenResponse>.Fail("ClientId or ClientSecret not found", HttpStatusCode.NotFound);
         }
 
         var token = _tokenService.CreateTokenByClient(client);
 
-        return Response<ClientTokenResponse>.Success(token);
+        return ServiceResult<ClientTokenResponse>.Success(token);
     }
 
-    public async Task<Response<TokenResponse>> CreateTokenByExternalLogin(string email, string? name, string googleSubjectId, string? picture)
+    public async Task<ServiceResult<TokenResponse>> CreateTokenByExternalLogin(string email, string? name, string googleSubjectId, string? picture)
     {
         // FIND USER BY EMAIL
         var user = await _userManager.FindByEmailAsync(email);
@@ -168,7 +168,7 @@ public class AuthenticationService(
             if (!createResult.Succeeded)
             {
                 var errors = createResult.Errors.Select(e => e.Description).ToList();
-                return Response<TokenResponse>.Fail(errors, HttpStatusCode.BadRequest);
+                return ServiceResult<TokenResponse>.Fail(errors, HttpStatusCode.BadRequest);
             }
 
             // ADD GOOGLE LOGIN PROVIDER
@@ -199,6 +199,6 @@ public class AuthenticationService(
 
         await _unitOfWork.CommitAsync();
 
-        return Response<TokenResponse>.Success(token);
+        return ServiceResult<TokenResponse>.Success(token);
     }
 }

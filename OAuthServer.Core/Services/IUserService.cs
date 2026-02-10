@@ -10,11 +10,11 @@ public interface IUserService
     // THE METHODS IN THIS INTERFACE CAN BE USED IN THE SERVICE OR PRESENTATION (API) LAYER.
     // THE DATA RETURNED FROM THE METHODS CAN BE USED IN THE SERVICE OR PRESENTATION (API) LAYER.
 
-    Task<Response<UserDto>> CreateUserAsync(SignUpRequest request);
-    Task<Response<UserDto>> GetUserByUserNameAsync(string username);
+    Task<ServiceResult<UserDto>> CreateUserAsync(SignUpRequest request);
+    Task<ServiceResult<UserDto>> GetUserByUserNameAsync(string username);
 
     // EXTRA METHODS FOR MY NEXTJS PROJECT
-    Task<Response> UpdateProfileInfos(UpdateProfileInfosRequest request);
-    Task<Response<UserDto>> GetProfileInfos(string userId);
-    Task<Response<bool>> CompareLanguageId(CompareLanguageIdRequest request);
+    Task<ServiceResult> UpdateProfileInfos(UpdateProfileInfosRequest request);
+    Task<ServiceResult<UserDto>> GetProfileInfos(string userId);
+    Task<ServiceResult<bool>> CompareLanguageId(CompareLanguageIdRequest request);
 }

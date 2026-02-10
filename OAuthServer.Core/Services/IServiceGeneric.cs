@@ -9,15 +9,15 @@ namespace OAuthServer.Core.Services;
 
 public interface IServiceGeneric<TEntity, TDto> where TEntity : class where TDto : class
 {
-    Task<Response<IEnumerable<TDto>>> GetAllAsync();
+    Task<ServiceResult<IEnumerable<TDto>>> GetAllAsync();
 
-    Task<Response<IEnumerable<TDto>>> Where(Expression<Func<TEntity, bool>> predicate);
+    Task<ServiceResult<IEnumerable<TDto>>> Where(Expression<Func<TEntity, bool>> predicate);
 
-    ValueTask<Response<TDto>> GetByIdAsync(int id);
+    ValueTask<ServiceResult<TDto>> GetByIdAsync(int id);
 
-    Task<Response<TDto>> AddAsync(TDto dto);
+    Task<ServiceResult<TDto>> AddAsync(TDto dto);
 
-    Task<Response> Update(TDto dto, int id);
+    Task<ServiceResult> Update(TDto dto, int id);
 
-    Task<Response> Delete(int id);
+    Task<ServiceResult> Delete(int id);
 }
