@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OAuthServer.API.ExceptionHandlers;
 using OAuthServer.API.Extensions;
 using OAuthServer.API.Filters;
-using OAuthServer.API.ModelBinding;
 using OAuthServer.API.Middlewares;
+using OAuthServer.API.ModelBinding;
 using OAuthServer.Core.Configuration;
 using OAuthServer.Data.Extensions;
 using OAuthServer.Service.Extensions;
@@ -18,14 +19,35 @@ builder.Services.AddControllers(options =>
 });
 builder.Services.AddOpenApi();
 
+// HEALTH CHECKS
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        builder.Configuration.GetConnectionString("SqlServer")!,
+        name: "sqlserver",
+        tags: ["db", "ready"]);
+
 // CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            var allowedOrigins = builder.Configuration
+                .GetSection("AllowedOrigins")
+                .Get<string[]>() ?? [];
+
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
     });
 });
 
@@ -63,8 +85,25 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+
+// HEALTH CHECK ENDPOINTS
+app.MapHealthChecks("/health/live", new()
+{
+    Predicate = _ => false
+});
+
+app.MapHealthChecks("/health/ready", new()
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+
+
+
 // MIDDLEWARES
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors();
 app.UseMiddleware<OpenTelemetryTraceIdMiddleware>();
 app.UseMiddleware<RequestAndResponseActivityMiddleware>();
