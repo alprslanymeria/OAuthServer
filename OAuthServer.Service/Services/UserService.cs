@@ -33,6 +33,7 @@ public class UserService(
         {
             UserName = request.UserName,
             Email = request.Email,
+            NativeLanguageId = request.NativeLanguageId
         };
 
         // CREATE USER WITH USER MANAGER
