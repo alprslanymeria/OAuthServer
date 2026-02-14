@@ -2,6 +2,7 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
+using OAuthServer.Core.Configuration;
 using OAuthServer.Core.Configuration.Storage;
 using OAuthServer.Core.Services.Storage;
 using System.Net;
@@ -18,13 +19,15 @@ public class GoogleCloudStorageProvider: IStorageProvider
     private readonly StorageClient _storageClient;
     private readonly UrlSigner _urlSigner;
     private readonly GoogleCloudStorageOption _config;
+    private readonly GoogleCloudConfig _cloudConfig;
     private bool _disposed;
 
-    public GoogleCloudStorageProvider(IOptions<GoogleCloudStorageOption> config)
+    public GoogleCloudStorageProvider(IOptions<GoogleCloudConfig> cloudConfig, IOptions<GoogleCloudStorageOption> config)
     {
+        _cloudConfig = cloudConfig.Value;
         _config = config.Value;
 
-        var credential = GoogleCredential.FromFile(_config.CredentialFilePath);
+        var credential = GoogleCredential.FromFile(_cloudConfig.CredentialsPath);
 
         _storageClient = StorageClient.Create(credential);
 
