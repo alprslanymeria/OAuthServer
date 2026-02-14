@@ -12,6 +12,9 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// OPEN TELEMETRY
+builder.AddOpenTelemetryLogExt();
+
 // SERVICES
 builder.Services.AddControllers(options =>
 {
