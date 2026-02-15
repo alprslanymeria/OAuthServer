@@ -152,12 +152,12 @@ public class UserService(
         var languageName = request.LanguageName;
 
         // GET USER
-        var user = await _userManager.FindByIdAsync(userId) ?? throw new Exception($"Kullanıcı bulunamadı: {userId}");
+        var user = await _userManager.FindByIdAsync(userId);
 
         // GET LANGUAGE ID BY NAME
-        var languageId = LanguageMapper.FromName(languageName) ?? throw new Exception($"Dil bulunamadı: {languageName}");
+        var languageId = LanguageMapper.FromName(languageName);
 
-        if (user.NativeLanguageId == (int)languageId)
+        if (user!.NativeLanguageId == (int)languageId!)
             return ServiceResult<bool>.Success(true, HttpStatusCode.OK);
 
         return ServiceResult<bool>.Success(false, HttpStatusCode.OK);

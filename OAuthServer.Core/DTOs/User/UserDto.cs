@@ -5,5 +5,5 @@ public record UserDto(
     string Id,
     string? UserName,
     string Email,
-    string? ImageUrl,
+    string? Image,
     int NativeLanguageId);

@@ -17,7 +17,6 @@ public static class StorageExtension
 
         // CONFIGURATION BINDINGS
         services.Configure<StorageOption>(configuration.GetSection(StorageOption.Key));
-        services.Configure<GoogleCloudConfig>(configuration.GetSection(GoogleCloudConfig.Key));
         services.Configure<GoogleCloudStorageOption>(configuration.GetSection(GoogleCloudStorageOption.Key));
 
         // COMMON STORAGE SERVICES

@@ -8,15 +8,14 @@ services:
     ports:
       - "44343:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__SqlServer=Server=oauthserver.sqlserver;Database=OAuthServer;User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=True;Trust Server Certificate=True;
-      - GoogleCloudStorage__CredentialFilePath=/app/secrets/gcloud-credentials.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/secrets/gcloud.json
     volumes:
-      - ${GCLOUD_CREDENTIAL_PATH}:/app/secrets/gcloud-credentials.json:ro
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/app/secrets/gcloud.json:ro
     depends_on:
-      oauthserver.sqlserver:
+      sqlserver:
         condition: service_healthy
       oauthserver.migrations:
         condition: service_completed_successfully
@@ -35,15 +34,16 @@ services:
       dockerfile: OAuthServer.API/Dockerfile
       target: migration
     environment:
-      - ConnectionStrings__SqlServer=Server=oauthserver.sqlserver;Database=OAuthServer;User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=True;Trust Server Certificate=True;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__SqlServer=Server=sqlserver;Database=OAuthServer;User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True;
     depends_on:
-      oauthserver.sqlserver:
+      sqlserver:
         condition: service_healthy
     restart: "no"
 
-  oauthserver.sqlserver:
+  sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: oauthserver-sqlserver
+    container_name: sqlserver
     ports:
       - "${MSSQL_PORT}:1433"
     environment:
