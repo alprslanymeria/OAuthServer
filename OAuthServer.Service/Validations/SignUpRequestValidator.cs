@@ -19,6 +19,6 @@ public class SignUpRequestValidator : AbstractValidator<SignUpRequest>
     {
         // NativeLanguageId Validation
         RuleFor(x => x.NativeLanguageId)
-            .GreaterThan(0).WithMessage("NativeLanguageId 0’dan büyük olmalıdır.");
+            .GreaterThan(0).WithMessage("NativeLanguageId MUST BE GREATER THAN 0");
     }
 }

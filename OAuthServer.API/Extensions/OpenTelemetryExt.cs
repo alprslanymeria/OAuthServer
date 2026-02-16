@@ -106,6 +106,11 @@ public static class OpenTelemetryExt
                     resource.AddService("Metric.API", serviceVersion: "1.0.0");
                 });
 
+                // BUILT-IN METRIC INSTRUMENTATION
+                options.AddAspNetCoreInstrumentation();
+                options.AddHttpClientInstrumentation();
+                options.AddRuntimeInstrumentation();
+
                 // METRICS EXPORTERS FROM APPSETTINGS
                 ConfigureMetricsExporters(options, openTelemetryConstants);
             });
