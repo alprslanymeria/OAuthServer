@@ -14,6 +14,7 @@ WORKDIR /src
 COPY ["OAuthServer.API/OAuthServer.API.csproj", "OAuthServer.API/"]
 COPY ["OAuthServer.Service/OAuthServer.Service.csproj", "OAuthServer.Service/"]
 COPY ["OAuthServer.Data/OAuthServer.Data.csproj", "OAuthServer.Data/"]
+COPY ["OAuthServer.Infrastructure/OAuthServer.Infrastructure.csproj", "OAuthServer.Infrastructure/"]
 COPY ["OAuthServer.Core/OAuthServer.Core.csproj", "OAuthServer.Core/"]
 RUN dotnet restore "./OAuthServer.API/OAuthServer.API.csproj"
 COPY . .

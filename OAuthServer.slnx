@@ -3,12 +3,12 @@
     <File Path="ERROR.TXT" />
     <File Path="notes.txt" />
   </Folder>
-  <Project Path="../OAuthServer.Infrastructure/OAuthServer.Infrastructure.csproj" Id="e3c97896-bfa1-49ef-938f-23e8e3acfc96" />
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
   <Project Path="OAuthServer.API/OAuthServer.API.csproj" />
   <Project Path="OAuthServer.Core/OAuthServer.Core.csproj" />
   <Project Path="OAuthServer.Data/OAuthServer.Data.csproj" />
+  <Project Path="OAuthServer.Infrastructure/OAuthServer.Infrastructure.csproj" />
   <Project Path="OAuthServer.Service/OAuthServer.Service.csproj" />
 </Solution>

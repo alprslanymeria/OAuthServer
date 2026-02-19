@@ -68,7 +68,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\OAuthServer.Infrastructure\OAuthServer.Infrastructure.csproj" />
+    <ProjectReference Include="..\OAuthServer.Infrastructure\OAuthServer.Infrastructure.csproj" />
     <ProjectReference Include="..\OAuthServer.Service\OAuthServer.Service.csproj" />
   </ItemGroup>
 
