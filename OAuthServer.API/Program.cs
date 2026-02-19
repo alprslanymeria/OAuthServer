@@ -6,8 +6,10 @@ using OAuthServer.API.Filters;
 using OAuthServer.API.Middlewares;
 using OAuthServer.API.ModelBinding;
 using OAuthServer.Core.Configuration;
-using OAuthServer.Data.Extensions;
-using OAuthServer.Service.Extensions;
+using OAuthServer.Data;
+using OAuthServer.Infrastructure;
+using OAuthServer.Infrastructure.OpenTelemetry;
+using OAuthServer.Service;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,9 +63,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services
     .AddRepositories(builder.Configuration)
     .AddServices()
+    .AddInfrastructure(builder.Configuration)
     .AddCustomTokenAuth(builder.Configuration)
-    .AddOpenTelemetryServicesExt(builder.Configuration)
-    .AddStorageServicesExt(builder.Configuration); ;
+    .AddOpenTelemetryServicesExt(builder.Configuration);
 
 
 // FLUENT VALIDATION AUTO VALIDATION

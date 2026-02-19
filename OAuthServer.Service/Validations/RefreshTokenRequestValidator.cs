@@ -8,7 +8,7 @@ public class RefreshTokenRequestValidator : AbstractValidator<RefreshTokenReques
     public RefreshTokenRequestValidator()
     {
         RuleFor(x => x.Token)
-            .NotNull().WithMessage("Refresh Token dolu olmalıdır")
-            .NotEmpty().WithMessage("Refresh Token dolu olmalıdır");
+            .NotNull().WithMessage("REFRESH TOKEN REQUIRED")
+            .NotEmpty().WithMessage("REFRESH TOKEN REQUIRED");
     }
 }

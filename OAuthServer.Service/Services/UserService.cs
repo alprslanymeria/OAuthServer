@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using OAuthServer.Core.DTOs.Extra;
 using OAuthServer.Core.DTOs.User;
 using OAuthServer.Core.Enum;
+using OAuthServer.Core.Exceptions;
 using OAuthServer.Core.Helper;
 using OAuthServer.Core.Models;
 using OAuthServer.Core.Services;
@@ -41,10 +42,7 @@ public class UserService(
 
         if (!result.Succeeded)
         {
-            // GET ERROR MESSAGES
-            var errors = result.Errors.Select(e => e.Description).ToList();
-
-            return ServiceResult<UserDto>.Fail(errors, HttpStatusCode.BadRequest);
+            throw new BusinessException(result.Errors.Select(e => e.Description).ToList());
         }
 
         // USER MAP TO USERDTO
@@ -53,30 +51,12 @@ public class UserService(
         return ServiceResult<UserDto>.SuccessAsCreated(userDto, $"api/user/{userDto.UserName}");
     }
 
-    public async Task<ServiceResult<UserDto>> GetUserByUserNameAsync(string username)
-    {
-        var user = await _userManager.FindByNameAsync(username);
-
-        if (user is null)
-        {
-            return ServiceResult<UserDto>.Fail($"Kullanıcı bulunamadı: {username}", HttpStatusCode.NotFound);
-        }
-
-        var userDto = _mapper.Map<UserDto>(user);
-
-        return ServiceResult<UserDto>.Success(userDto, HttpStatusCode.OK);
-    }
-
     // // EXTRA METHODS FOR MY NEXTJS PROJECT
     public async Task<ServiceResult<UserDto>> GetProfileInfos(string userId)
     {
 
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-
-        if (user is null)
-        {
-            return ServiceResult<UserDto>.Fail($"Kullanıcı bulunamadı: {userId} {user}", HttpStatusCode.NotFound);
-        }
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId)
+                ?? throw new NotFoundException($"User not found: {userId}");
 
         var userDto = _mapper.Map<UserDto>(user);
 
@@ -94,12 +74,8 @@ public class UserService(
         // LOG MESSAGE
         _logger.LogInformation($"UpdateProfileInfosHandler: Received request to update profile infos for User ID {userId}");
 
-        var user = await _userManager.FindByIdAsync(userId);
-
-        if (user is null)
-        {
-            return ServiceResult.Fail($"Kullanıcı bulunamadı: {userId}", HttpStatusCode.NotFound);
-        }
+        var user = await _userManager.FindByIdAsync(userId) 
+            ?? throw new NotFoundException($"User not found: {userId}");
 
         // STORE OLD FILE URLS FOR DELETION
         var oldImageUrl = user.Image;
@@ -127,10 +103,7 @@ public class UserService(
 
         if (!result.Succeeded)
         {
-            // GET ERROR MESSAGES
-            var errors = result.Errors.Select(e => e.Description).ToList();
-
-            return ServiceResult.Fail(errors, HttpStatusCode.BadRequest);
+            throw new BusinessException(result.Errors.Select(e => e.Description).ToList());
         }
 
         // DELETE OLD FILES FROM STORAGE IF URLS CHANGED

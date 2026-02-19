@@ -17,13 +17,8 @@ public class UserController(
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
     [HttpPost]
-    public async Task<IActionResult> CreateUser(SignUpRequest request) 
+    public async Task<IActionResult> CreateUser([FromForm] SignUpRequest request) 
         => ActionResultInstance(await _userService.CreateUserAsync(request));
-
-    [Authorize]
-    [HttpGet("by-name/{username:minlength(3)}")]
-    public async Task<IActionResult> GetUserByUserName(string username) 
-        => ActionResultInstance(await _userService.GetUserByUserNameAsync(username));
 
     // EXTRA METHODS FOR MY NEXTJS PROJECT
     [Authorize]

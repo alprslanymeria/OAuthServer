@@ -3,18 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OAuthServer.Core.Configuration;
-using OAuthServer.Core.Models;
 using OAuthServer.Core.Repositories;
 using OAuthServer.Core.UnitOfWork;
 using OAuthServer.Data.Repositories;
 
-
-namespace OAuthServer.Data.Extensions;
+namespace OAuthServer.Data;
 
 // EXTENSION METHODS MUST BE STATIC, AND THE CLASS THAT CONTAINS THEM MUST ALSO BE STATIC.
 // WE SHOULD SPECIFY THE CLASS OR INTERFACE FOR WHICH WE ARE WRITING THE METHOD WITH THIS.
 
-public static class RepositoryExtensions 
+public static class RepositoryExt 
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services, IConfiguration configuration)
     {

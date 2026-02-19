@@ -5,23 +5,24 @@ using OAuthServer.Core.Configuration;
 using OAuthServer.Core.DTOs.Client;
 using OAuthServer.Core.DTOs.RefreshToken;
 using OAuthServer.Core.DTOs.User;
+using OAuthServer.Core.Exceptions;
 using OAuthServer.Core.Helper;
 using OAuthServer.Core.Models;
 using OAuthServer.Core.Repositories;
 using OAuthServer.Core.Services;
 using OAuthServer.Core.UnitOfWork;
-using System.Net;
 
 namespace OAuthServer.Service.Services;
 
 public class AuthenticationService(
 
-    //IOptions<List<Client>> optionsClient,
     UserManager<User> userManager,
     ITokenService tokenService,
     IUnitOfWork unitOfWork,
     IOptions<List<Client>> optionsClient,
-    IGenericRepository<UserRefreshToken> userRefreshTokenRepository) : IAuthenticationService
+    IGenericRepository<UserRefreshToken> userRefreshTokenRepository
+    
+    ) : IAuthenticationService
 {
     private readonly List<Client> _clients = optionsClient.Value;
     private readonly UserManager<User> _userManager = userManager;
@@ -31,50 +32,21 @@ public class AuthenticationService(
 
     public async Task<ServiceResult<TokenResponse>> CreateTokenAsync(SignInRequest request)
     {
-        // CHECK SIGNIN DTO
         ArgumentNullException.ThrowIfNull(request);
 
-        // GET USER BY EMAIL
+        // FIND USER BY EMAIL
         var user = await _userManager.FindByEmailAsync(request.Email);
 
-        // CHEK USER
-        if (user is null)
-        {
-            return ServiceResult<TokenResponse>.Fail("Invalid email or password.");
-        }
+        if (user is null) throw new UnauthorizedException("Invalid credentials.");
 
-        // GET PASSWORD
+        // VALIDATE PASSWORD
         var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
 
-        if (!passwordValid)
-        {
-            return ServiceResult<TokenResponse>.Fail("Invalid email or password.");
-        }
+        if (!passwordValid) throw new UnauthorizedException("Invalid credentials.");
 
-        // CREATE TOKEN
+        // CREATE TOKEN AND SAVE REFRESH TOKEN
         var token = _tokenService.CreateToken(user);
-
-        // CHECK REFRESH TOKEN
-        var userRefreshToken = await _userRefreshTokenRepository.Where(x => x.UserId == user.Id).SingleOrDefaultAsync();
-
-        if (userRefreshToken is null)
-        {
-            await _userRefreshTokenRepository.AddAsync(new UserRefreshToken
-            {
-                UserId = user.Id,
-                Code = token.RefreshToken,
-                Expiration = token.RefreshTokenExpiration
-            });
-        }
-        else
-        {
-            userRefreshToken.Code = token.RefreshToken;
-            userRefreshToken.Expiration = token.RefreshTokenExpiration;
-
-            _userRefreshTokenRepository.Update(userRefreshToken);
-        }
-
-        await _unitOfWork.CommitAsync();
+        await SaveOrUpdateRefreshTokenAsync(user.Id, token);
 
         return ServiceResult<TokenResponse>.Success(token);
 
@@ -82,21 +54,13 @@ public class AuthenticationService(
 
     public async Task<ServiceResult<TokenResponse>> CreateTokenByRefreshToken(string refreshToken)
     {
-        // CHECK REFRESH TOKEN
-        var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync();
 
-        if (existRefreshToken is null)
-        {
-            return ServiceResult<TokenResponse>.Fail("Refresh token not found", HttpStatusCode.NotFound);
-        }
+        // CHECK REFRESH TOKEN & USER
+        var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync()
+            ?? throw new NotFoundException("Refresh token not found.");
 
-        // CHECK USER
-        var user = await _userManager.FindByIdAsync(existRefreshToken.UserId);
-
-        if (user is null)
-        {
-            return ServiceResult<TokenResponse>.Fail("User Id not found", HttpStatusCode.NotFound);
-        }
+        var user = await _userManager.FindByIdAsync(existRefreshToken.UserId)
+            ?? throw new NotFoundException("User not found.");
 
         // CREATE TOKEN
         var token = _tokenService.CreateToken(user);
@@ -108,8 +72,6 @@ public class AuthenticationService(
         // SINCE THE DATA RETURNED WITH THE WHERE CONDITION WAS MARKED AS "NO TRACKING" I CALLED IT USING THE UPDATE METHOD TO ENABLE TRACKING.
         // OTHERWISE, THE CHANGES WON'T BE REFLECTED IN THE DATABASE WHEN CALLING COMMIT ASYNC.
         _userRefreshTokenRepository.Update(existRefreshToken);
-
-        // UPDATE DATABASE
         await _unitOfWork.CommitAsync();
 
         return ServiceResult<TokenResponse>.Success(token);
@@ -117,15 +79,10 @@ public class AuthenticationService(
 
     public async Task<ServiceResult> RevokeRefreshToken(string refreshToken)
     {
-        var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync();
-
-        if (existRefreshToken is null)
-        {
-            return ServiceResult.Fail("Refresh token not found", HttpStatusCode.NotFound);
-        }
+        var existRefreshToken = await _userRefreshTokenRepository.Where(x => x.Code == refreshToken).SingleOrDefaultAsync()
+            ?? throw new NotFoundException("Refresh token not found.");
 
         _userRefreshTokenRepository.Delete(existRefreshToken);
-
         await _unitOfWork.CommitAsync();
 
         return ServiceResult.Success();
@@ -133,12 +90,8 @@ public class AuthenticationService(
 
     public async Task<ServiceResult<ClientTokenResponse>> CreateTokenByClient(ClientSignInRequest request)
     {
-        var client = _clients.SingleOrDefault(x => x.Id == request.ClientId && x.Secret == request.ClientSecret);
-
-        if (client is null)
-        {
-            return ServiceResult<ClientTokenResponse>.Fail("ClientId or ClientSecret not found", HttpStatusCode.NotFound);
-        }
+        var client = _clients.SingleOrDefault(x => x.Id == request.ClientId && x.Secret == request.ClientSecret)
+            ?? throw new NotFoundException("Client not found.");
 
         var token = _tokenService.CreateTokenByClient(client);
 
@@ -167,8 +120,7 @@ public class AuthenticationService(
 
             if (!createResult.Succeeded)
             {
-                var errors = createResult.Errors.Select(e => e.Description).ToList();
-                return ServiceResult<TokenResponse>.Fail(errors, HttpStatusCode.BadRequest);
+                throw new BusinessException(createResult.Errors.Select(e => e.Description).ToList());
             }
 
             // ADD GOOGLE LOGIN PROVIDER
@@ -176,17 +128,25 @@ public class AuthenticationService(
             await _userManager.AddLoginAsync(user, loginInfo);
         }
 
-        // CREATE TOKEN
+        // CREATE TOKEN AND SAVE REFRESH TOKEN
         var token = _tokenService.CreateToken(user);
+        await SaveOrUpdateRefreshTokenAsync(user.Id, token);
 
-        //  SAVE REFRESH TOKEN
-        var userRefreshToken = await _userRefreshTokenRepository.Where(x => x.UserId == user.Id).SingleOrDefaultAsync();
+        return ServiceResult<TokenResponse>.Success(token);
+    }
+
+
+    #region HELPERS
+
+    private async Task SaveOrUpdateRefreshTokenAsync(string userId, TokenResponse token)
+    {
+        var userRefreshToken = await _userRefreshTokenRepository.Where(x => x.UserId == userId).SingleOrDefaultAsync();
 
         if (userRefreshToken is null)
         {
             await _userRefreshTokenRepository.AddAsync(new UserRefreshToken
             {
-                UserId = user.Id,
+                UserId = userId,
                 Code = token.RefreshToken,
                 Expiration = token.RefreshTokenExpiration
             });
@@ -195,10 +155,11 @@ public class AuthenticationService(
         {
             userRefreshToken.Code = token.RefreshToken;
             userRefreshToken.Expiration = token.RefreshTokenExpiration;
+            _userRefreshTokenRepository.Update(userRefreshToken);
         }
 
         await _unitOfWork.CommitAsync();
-
-        return ServiceResult<TokenResponse>.Success(token);
     }
+
+    #endregion
 }

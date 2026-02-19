@@ -26,5 +26,3 @@ public interface IFileUpload
     /// </summary>
     Stream OpenReadStream();
 }
-
-

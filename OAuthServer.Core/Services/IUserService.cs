@@ -11,9 +11,6 @@ public interface IUserService
     // THE DATA RETURNED FROM THE METHODS CAN BE USED IN THE SERVICE OR PRESENTATION (API) LAYER.
 
     Task<ServiceResult<UserDto>> CreateUserAsync(SignUpRequest request);
-    Task<ServiceResult<UserDto>> GetUserByUserNameAsync(string username);
-
-    // EXTRA METHODS FOR MY NEXTJS PROJECT
     Task<ServiceResult> UpdateProfileInfos(UpdateProfileInfosRequest request);
     Task<ServiceResult<UserDto>> GetProfileInfos(string userId);
     Task<ServiceResult<bool>> CompareLanguageId(CompareLanguageIdRequest request);

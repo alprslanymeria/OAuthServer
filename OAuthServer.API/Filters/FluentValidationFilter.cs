@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using OAuthServer.Core.Helper;
@@ -7,7 +9,7 @@ namespace OAuthServer.API.Filters;
 
 public class FluentValidationFilter : IFluentValidationAutoValidationResultFactory
 {
-    public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
+    public Task<IActionResult?> CreateActionResult(ActionExecutingContext context, ValidationProblemDetails validationProblemDetails, IDictionary<IValidationContext, ValidationResult> validationResults)
     {
         var errors = context.ModelState.Values
                             .SelectMany(x => x.Errors)
@@ -16,6 +18,6 @@ public class FluentValidationFilter : IFluentValidationAutoValidationResultFacto
 
         var responseModel = ServiceResult.Fail(errors);
 
-        return new BadRequestObjectResult(responseModel);
+        return Task.FromResult<IActionResult?>(new BadRequestObjectResult(responseModel));
     }
 }

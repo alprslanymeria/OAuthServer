@@ -3,6 +3,7 @@
     <File Path="ERROR.TXT" />
     <File Path="notes.txt" />
   </Folder>
+  <Project Path="../OAuthServer.Infrastructure/OAuthServer.Infrastructure.csproj" Id="e3c97896-bfa1-49ef-938f-23e8e3acfc96" />
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

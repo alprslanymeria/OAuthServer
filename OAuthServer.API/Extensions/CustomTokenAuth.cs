@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using OAuthServer.Core.Configuration;
 using OAuthServer.Core.Models;
-using OAuthServer.Data.Extensions;
+using OAuthServer.Data;
 using OAuthServer.Service.Services;
 using System.Net.Http.Headers;
 using System.Security.Claims;
