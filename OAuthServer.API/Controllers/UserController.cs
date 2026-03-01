@@ -17,7 +17,7 @@ public class UserController(
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromForm] SignUpRequest request) 
+    public async Task<IActionResult> CreateUser([FromBody] SignUpRequest request) 
         => ActionResultInstance(await _userService.CreateUserAsync(request));
 
     // EXTRA METHODS FOR MY NEXTJS PROJECT

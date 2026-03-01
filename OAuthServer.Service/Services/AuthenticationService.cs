@@ -108,7 +108,7 @@ public class AuthenticationService(
             // CREATE USER IF NOT FOUND
             user = new User
             {
-                UserName = name ?? email.Split('@')[0],
+                UserName = email.Split('@')[0],
                 Email = email,
                 EmailConfirmed = true,
                 Image = picture

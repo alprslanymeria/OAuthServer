@@ -83,6 +83,9 @@ builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("TokenO
 
 var app = builder.Build();
 
+// APPLY MIGRATIONS
+await app.ApplyMigrations();
+
 app.UseExceptionHandler(x => { });
 
 if (app.Environment.IsDevelopment())

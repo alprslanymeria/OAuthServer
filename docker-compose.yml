@@ -6,19 +6,41 @@ services:
       dockerfile: OAuthServer.API/Dockerfile
       target: final
     ports:
-      - "44343:8080"
+      - "${API_PORT:-44343}:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_URLS=http://+:8080
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/secrets/gcloud.json
-    volumes:
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:/app/secrets/gcloud.json:ro
+      # DATABASE
+      - ConnectionStrings__SqlServer=Data Source=sqlserver;Initial Catalog=${DB_NAME};User ID=sa;Password=${MSSQL_SA_PASSWORD};Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False;Command Timeout=30
+      # TOKEN / AUTH
+      - TokenOptions__SecurityKey=${TOKEN_SECURITY_KEY}
+      - TokenOptions__Issuer=${TOKEN_ISSUER}
+      - TokenOptions__Audience__0=${TOKEN_AUDIENCE_0}
+      - TokenOptions__Audience__1=${TOKEN_AUDIENCE_1}
+      # CLIENTS
+      - Clients__0__Id=${CLIENT_MOBILE_ID}
+      - Clients__0__Secret=${CLIENT_MOBILE_SECRET}
+      - Clients__0__Audiences__0=${CLIENT_MOBILE_AUDIENCE}
+      # GOOGLE AUTHENTICATION
+      - Authentication__Google__ClientId=${GOOGLE_AUTH_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${GOOGLE_AUTH_CLIENT_SECRET}
+      # GCP SECRET MANAGER
+      - GoogleSecretManager__ProjectId=${GCP_PROJECT_ID}
+      - GoogleSecretManager__CredentialBase64=${GCP_CREDENTIAL_BASE64}
+      # GOOGLE CLOUD STORAGE
+      - GoogleCloudStorage__BucketName=${GCS_BUCKET_NAME}
+      # OPENTELEMETRY
+      - OpenTelemetryOption__Enabled=${OTEL_ENABLED:-true}
+      # ALLOWED URLS
+      - AllowedRedirectUris__0=${ALLOWED_REDIRECT_URI_0}
+      - AllowedRedirectUris__1=${ALLOWED_REDIRECT_URI_1}
+      # CORS - ALLOWED ORIGINS
+      - AllowedOrigins__0=${ALLOWED_ORIGIN_0}
+      - AllowedOrigins__1=${ALLOWED_ORIGIN_1}
     depends_on:
       sqlserver:
         condition: service_healthy
-      oauthserver.migrations:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health/live || exit 1"]
       interval: 30s
@@ -27,19 +49,19 @@ services:
       start_period: 15s
     restart: unless-stopped
 
-  oauthserver.migrations:
-    image: ${DOCKER_REGISTRY-}oauthserver-migrations
-    build:
-      context: .
-      dockerfile: OAuthServer.API/Dockerfile
-      target: migration
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__SqlServer=Server=sqlserver;Database=OAuthServer;User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True;
-    depends_on:
-      sqlserver:
-        condition: service_healthy
-    restart: "no"
+  # oauthserver.migrations:
+  #   image: ${DOCKER_REGISTRY-}oauthserver-migrations
+  #   build:
+  #     context: .
+  #     dockerfile: OAuthServer.API/Dockerfile
+  #     target: migration
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production
+  #     - ConnectionStrings__SqlServer=Server=sqlserver;Database=OAuthServer;User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True;
+  #   depends_on:
+  #     sqlserver:
+  #       condition: service_healthy
+  #   restart: "no"
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -48,7 +70,7 @@ services:
       - "${MSSQL_PORT}:1433"
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - MSSQL_SA_PASSWORD
     volumes:
       - sqlserver-data:/var/opt/mssql
     healthcheck:

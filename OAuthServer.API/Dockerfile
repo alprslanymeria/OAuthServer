@@ -23,16 +23,16 @@ RUN dotnet build "./OAuthServer.API.csproj" -c $BUILD_CONFIGURATION -o /app/buil
 
 
 # MIGRATION STAGE
-FROM build AS migration
-RUN dotnet tool install --global dotnet-ef
-ENV PATH="${PATH}:/root/.dotnet/tools"
-WORKDIR /src
-RUN dotnet build OAuthServer.API/OAuthServer.API.csproj -c Release
-ENTRYPOINT ["dotnet", "ef", "database", "update", \
-            "--project", "OAuthServer.Data/OAuthServer.Data.csproj", \
-            "--startup-project", "OAuthServer.API/OAuthServer.API.csproj", \ 
-            "--no-build", \
-            "--configuration", "Release"]
+#FROM build AS migration
+#RUN dotnet tool install --global dotnet-ef
+#ENV PATH="${PATH}:/root/.dotnet/tools"
+#WORKDIR /src
+#RUN dotnet build OAuthServer.API/OAuthServer.API.csproj -c Release
+#ENTRYPOINT ["dotnet", "ef", "database", "update", \
+            #"--project", "OAuthServer.Data/OAuthServer.Data.csproj", \
+            #"--startup-project", "OAuthServer.API/OAuthServer.API.csproj", \ 
+            #"--no-build", \
+            #"--configuration", "Release"]
 
 
 # This stage is used to publish the service project to be copied to the final stage

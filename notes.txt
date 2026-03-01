@@ -152,20 +152,11 @@ _______________________
 			# Bu interface'in implement edilen handler'ların çalışabilmesi için Middleware'i kullanmamız gerek zaten.
 
 
-DÜZELTİLECEK YERLER
-_____________________
+# DOCKER PUSH
+________________
 
-# null olmayacak alanlar için = null! kullanmak yerine = default! kullanılacak. (+)
-# class'lar içerisinde sağ tık yapıp "remove and sort usings" yap. (+)
-# namespace {} leri kaldırılır. sadece ; konulur. (+)
-# program.cs extension metotlar oluşturularak sadeleştirilir.
-# statik isimler sabitler kullanılarak dinamik hale getirilmeliler.
-# Her bir assembly için ayrı ayrı struct'lar oluşturulur. Böylese assembly belirtirken bunları kullanabiliriz. struct yapıyoruz 
-böylece memory'de daha az yer kaplar. (+)
-# GenericService yapısı kaldırılabilir. 
-# Status Code dönerken "HttpStatusCode" enum kullanılır. (+)
-# DTO isimlendirmelerinde dto yerine "Response" veya "Request" isimlendirmeleri kullanılır. (+)
-	# OPERATION : ENTITY : REQUEST | RESPONSE --> CreateProductRequest (-)
-# dto'lar class ile değil record ile oluşturulur. (+)
-# Gelen request modeller Fluent Validation ile validate edilir. (+)
-# Response DTO düzeltilir ve create işleminde location header'ı dönülür.
+docker build -f OAuthServer.API/Dockerfile -t alparslanorgnl/oauth:oauthserver-v1 .
+docker push alparslanorgnl/oauth:oauthserver-v1
+
+docker build -f OAuthServer.API/Dockerfile --target migration -t alparslanorgnl/migration:oauthserver-v1-migration .
+docker push alparslanorgnl/migration:oauthserver-v1-migration

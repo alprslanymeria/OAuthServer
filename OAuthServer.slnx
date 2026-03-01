@@ -1,6 +1,5 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path="ERROR.TXT" />
     <File Path="notes.txt" />
   </Folder>
   <Project Path="docker-compose.dcproj">
